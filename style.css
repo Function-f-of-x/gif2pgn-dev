@@ -1,8 +1,9 @@
+/* --- Базовая стилистика --- */
 body {
   margin: 0;
   font-family: "Segoe UI", sans-serif;
-  background: #f8f9fa;
-  color: #333;
+  background: #121212;
+  color: #e0e0e0;
   overflow-x: hidden;
 }
 
@@ -10,10 +11,10 @@ body {
 .container {
   max-width: 700px;
   margin: 60px auto;
-  background: white;
+  background: #1e1e1e;
   padding: 30px;
   border-radius: 20px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
   text-align: center;
   position: relative;
   z-index: 1;
@@ -23,15 +24,15 @@ h1 {
   margin-bottom: 25px;
   font-size: 2em;
   font-weight: bold;
-  color: #444;
+  color: #ffffff;
 }
 
-/* фоновые кругляшки */
+/* фоновые круги */
 .background .circle {
   position: absolute;
   border-radius: 50%;
   background: radial-gradient(circle at center, #ff7e5f, #feb47b);
-  opacity: 0.25;
+  opacity: 0.2;
   animation: float 8s infinite ease-in-out;
 }
 .background .circle:nth-child(1) { width: 300px; height: 300px; top: -100px; left: -100px; }
@@ -56,8 +57,8 @@ h1 {
   color: white;
   font-size: 1em;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  transition: 0.2s;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  transition: 0.3s;
 }
 .file-upload-button:hover { background: linear-gradient(135deg, #feb47b, #ff7e5f); }
 
@@ -75,7 +76,7 @@ h1 {
 #filename {
   margin-top: 8px;
   font-style: italic;
-  color: #666;
+  color: #bbb;
 }
 
 /* кнопка конвертировать */
@@ -88,29 +89,29 @@ h1 {
   color: white;
   font-size: 1em;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  transition: 0.2s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transition: 0.3s;
 }
-.action-btn:hover { background: linear-gradient(135deg, #185a9d, #43cea2); }
+.action-btn:hover { background: linear-gradient(135deg, #185a9d, #43cea2); transform: translateY(-2px); }
 
 /* progress */
-.progress { width: 100%; background: #eee; border-radius: 10px; margin: 20px 0; height: 15px; overflow: hidden; }
+.progress { width: 100%; background: #2c2c2c; border-radius: 10px; margin: 20px 0; height: 15px; overflow: hidden; }
 .progress-bar { height: 100%; width: 0%; background: linear-gradient(135deg, #43cea2, #185a9d); transition: width 0.3s; }
 
 /* output */
 #output {
   text-align: left;
   padding: 15px;
-  background: #f1f1f1;
+  background: #2a2a2a;
   border-radius: 10px;
   max-height: 300px;
   overflow-y: auto;
   font-size: 0.9em;
   margin-top: 20px;
+  color: #e0e0e0;
 }
 
-/* ---------- СТИЛЬ ДЛЯ СКАЧИВАЮЩЕЙ КНОПКИ ---------- */
-/* конкретный селектор с высокой специфичностью, чтобы переопределить браузерный стиль */
+/* кнопка скачать */
 a#download.download-btn,
 .download-btn {
   display: inline-block !important;
@@ -122,22 +123,28 @@ a#download.download-btn,
   text-decoration: none !important;
   font-size: 1em;
   font-weight: 600;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.18);
-  transition: transform 0.12s, box-shadow 0.12s;
-  -webkit-appearance: none;
-  appearance: none;
-  border: none;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  transition: transform 0.15s, box-shadow 0.15s;
   cursor: pointer;
   text-align: center;
 }
-
-/* hover/active */
 a#download.download-btn:hover,
 .download-btn:hover {
   background: linear-gradient(135deg, #2575fc, #6a11cb);
   transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
 }
 
-/* ещё на всякий случай убираем стандартные стили ссылок */
-a#download.download-btn:visited { color: white !important; }
+/* документация */
+.documentation {
+  text-align: left;
+  margin-top: 30px;
+  padding: 20px;
+  background: #1a1a1a;
+  border-radius: 15px;
+  color: #ddd;
+}
+.documentation h2 { text-align: center; color: #fff; margin-bottom: 15px; }
+.documentation ol li { margin-bottom: 10px; line-height: 1.5em; }
+.documentation a { color: #43cea2; text-decoration: underline; }
+.documentation a:hover { color: #57ffb8; }
