@@ -2,18 +2,18 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>GIF to PGN</title>
+<title>GIF to PGN via Canvas</title>
 </head>
 <body>
-<h1>Конвертер GIF в PGN</h1>
+<h1>Конвертер GIF в PGN через Canvas</h1>
 <input type="file" id="gifInput" accept=".gif">
-<button id="convertBtn">Конвертировать</button>
+<button onclick="processGIF()">Конвертировать</button>
 <a id="downloadLink" style="display:none;">Скачать PGN</a>
 
-<script type="module">
-import { parseGIF, decompressFrames } from 'https://cdn.jsdelivr.net/npm/gifuct-js@1.0.0/dist/gifuct.esm.js';
-
+<script src="https://cdn.jsdelivr.net/npm/gifuct-js/dist/gifuct.min.js"></script>
+<script>
 const files = "abcdefgh";
+let array_images = [];
 
 function p2c(x, y) {
     const file = files[x];
@@ -30,59 +30,80 @@ function generate_move(move) {
     }
 }
 
+// Получаем HEX цвет пикселя через canvas
 function hex(array_images, frame, x, y) {
-    const idx = (y * 8 + x) * 4;
-    const data = array_images[frame].patch;
-    const r = data[idx];
-    const g = data[idx+1];
-    const b = data[idx+2];
-    return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = array_images[frame].width;
+    canvas.height = array_images[frame].height;
+    ctx.drawImage(array_images[frame], 0, 0);
+    const pixel = ctx.getImageData(x, y, 1, 1).data;
+    const hexColor = `#${pixel[0].toString(16).padStart(2,'0')}${pixel[1].toString(16).padStart(2,'0')}${pixel[2].toString(16).padStart(2,'0')}`;
+    return hexColor;
 }
 
+// Конвертация GIF в массив изображений
 async function gif_to_array(file) {
     const arrayBuffer = await file.arrayBuffer();
-    const gif = parseGIF(arrayBuffer);
-    const frames = decompressFrames(gif, true);
-    if (frames[0].dims.width !== 8 || frames[0].dims.height !== 8) {
-        throw new Error(`GIF размером ${frames[0].dims.width}x${frames[0].dims.height}, нужен 8x8`);
+    const gif = new window.GifuctJs.Gif(arrayBuffer);
+    const frames = gif.decompressFrames(true);
+
+    array_images = [];
+    for (let f = 0; f < frames.length; f++) {
+        const canvas = document.createElement('canvas');
+        canvas.width = frames[f].dims.width;
+        canvas.height = frames[f].dims.height;
+        const ctx = canvas.getContext('2d');
+        const imageData = ctx.createImageData(canvas.width, canvas.height);
+        imageData.data.set(frames[f].patch);
+        ctx.putImageData(imageData, 0, 0);
+
+        const img = new Image();
+        img.src = canvas.toDataURL();
+        await new Promise(r => img.onload = r); // ждем загрузки изображения
+        array_images.push(img);
     }
-    return frames;
 }
 
+// Генерация PGN
+function generate_pgn() {
+    const highlights = [];
+    for (let frame = 0; frame < array_images.length; frame++) {
+        let frame_highlights = "{[%c_highlight ";
+        for (let x = 0; x < 8; x++) {
+            for (let y = 0; y < 8; y++) {
+                const color = hex(array_images, frame, x, y);
+                const square = p2c(x, y);
+                frame_highlights += `${square};color;${color};opacity;1;square;${square};persistent;true,`;
+            }
+        }
+        frame_highlights += "]}";
+        highlights.push(frame_highlights);
+    }
+
+    let pgn = `[SetUp "1"]\n[FEN "k7/8/8/8/8/8/8/K7 w - - 0 1"]\n`;
+    for (let move = 0; move < array_images.length; move++) {
+        pgn += `${generate_move(move)} ${highlights[move]} `;
+    }
+    return pgn;
+}
+
+// Основная функция
 async function processGIF() {
     const input = document.getElementById('gifInput');
     if (!input.files.length) {
         alert("Выберите GIF файл!");
         return;
     }
-
     const file = input.files[0];
-    let frames;
-    try {
-        frames = await gif_to_array(file);
-    } catch(e) {
-        alert(e.message);
+    await gif_to_array(file);
+
+    if (array_images[0].width !== 8 || array_images[0].height !== 8) {
+        alert(`GIF размером ${array_images[0].width}x${array_images[0].height}, нужен 8x8`);
         return;
     }
 
-    // Генерация PGN
-    const highlights = frames.map((frame, i) => {
-        let frame_highlights = "{[%c_highlight ";
-        for (let y = 0; y < 8; y++) {
-            for (let x = 0; x < 8; x++) {
-                const square = p2c(x, y);
-                frame_highlights += `${square};color;${hex(frames, i, x, y)};opacity;1;square;${square};persistent;true,`;
-            }
-        }
-        frame_highlights += "]}";
-        return frame_highlights;
-    });
-
-    let pgn = `[SetUp "1"]\n[FEN "k7/8/8/8/8/8/8/K7 w - - 0 1"]\n`;
-    for (let i = 0; i < frames.length; i++) {
-        pgn += `${generate_move(i)} ${highlights[i]} `;
-    }
-
+    const pgn = generate_pgn();
     const blob = new Blob([pgn], {type: "text/plain;charset=utf-8"});
     const link = document.getElementById('downloadLink');
     link.href = URL.createObjectURL(blob);
@@ -90,9 +111,6 @@ async function processGIF() {
     link.style.display = 'inline';
     link.textContent = "Скачать PGN";
 }
-
-// В ES-модуле используем addEventListener вместо onclick
-document.getElementById('convertBtn').addEventListener('click', processGIF);
 </script>
 </body>
 </html>
