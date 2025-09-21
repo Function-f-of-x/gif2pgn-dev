@@ -97,4 +97,3 @@ document.getElementById("convertBtn").onclick = async function() {
   link.textContent = "Скачать PGN";
   link.style.display = "inline";
 };
-                                                                  
