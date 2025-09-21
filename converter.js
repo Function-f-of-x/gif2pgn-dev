@@ -90,8 +90,7 @@ document.getElementById("convertBtn").onclick = async function() {
     pgn += `${generateMove(m)} ${highlights[m]} `;
   }
 
-  output.textContent = pgn;
-  output.classList.add('show');
+  document.getElementById("output").textContent = pgn;
 
   const blob = new Blob([pgn], {type: "text/plain"});
   downloadBtn.href = URL.createObjectURL(blob);
