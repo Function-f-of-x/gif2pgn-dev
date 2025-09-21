@@ -5,91 +5,83 @@
   <title>GIF → PGN конвертер</title>
   <style>
     body { font-family: sans-serif; padding: 20px; }
-    #progressContainer { margin-top: 10px; width: 100%; }
+    #output { white-space: pre-wrap; background: #f0f0f0; padding: 10px; margin-top: 10px; }
   </style>
 </head>
 <body>
-  <h1>GIF → PGN конвертер</h1>
+  <h1>GIF → PGN конвертер (8×8)</h1>
   <input type="file" id="gifInput" accept="image/gif">
-  <button onclick="processGif()">Конвертировать</button>
-
-  <div id="progressContainer">
-    <progress id="progress" value="0" max="100" style="width: 100%;"></progress>
-  </div>
-
+  <button id="convertBtn">Конвертировать</button>
   <pre id="output"></pre>
   <a id="download" style="display:none;">Скачать PGN</a>
+  <canvas id="canvas" width="8" height="8" style="display:none;"></canvas>
 
-  <script type="module">
-    import { parseGIF, decompressFrames } from 'https://unpkg.com/gifuct-js/dist/gifuct.esm.js';
+<script>
+function p2c(x, y) {
+  const files = "abcdefgh";
+  return files[x] + (8 - y);
+}
 
-    function p2c(x, y) {
-      const files = "abcdefgh";
-      return files[x] + (8 - y);
+function generateMove(move) {
+  switch (move % 4) {
+    case 0: return `${Math.floor(move/2)+1}. Kb1`;
+    case 1: return "Kb8";
+    case 2: return `${Math.floor(move/2)+1}. Ka1`;
+    case 3: return "Ka8";
+  }
+}
+
+document.getElementById("convertBtn").onclick = async function() {
+  const file = document.getElementById("gifInput").files[0];
+  if (!file) { alert("Выберите GIF!"); return; }
+
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.src = url;
+
+  img.onload = async () => {
+    if (img.width !== 8 || img.height !== 8) {
+      alert(`GIF имеет размер ${img.width}x${img.height}, нужен 8x8`);
+      return;
     }
 
-    function generateMove(move) {
-      switch (move % 4) {
-        case 0: return `${Math.floor(move/2)+1}. Kb1`;
-        case 1: return "Kb8";
-        case 2: return `${Math.floor(move/2)+1}. Ka1`;
-        case 3: return "Ka8";
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    // Рисуем один кадр GIF
+    ctx.drawImage(img, 0, 0, 8, 8);
+    const imageData = ctx.getImageData(0, 0, 8, 8).data;
+
+    // Для 8×8 GIF делаем один кадр
+    let highlights = [];
+    let frame_highlights = "{[%c_highlight ";
+    for (let y = 0; y < 8; y++) {
+      for (let x = 0; x < 8; x++) {
+        const idx = (y*8 + x)*4;
+        const r = imageData[idx], g = imageData[idx+1], b = imageData[idx+2];
+        const hex = `#${r.toString(16).padStart(2,"0").toUpperCase()}${g.toString(16).padStart(2,"0").toUpperCase()}${b.toString(16).padStart(2,"0").toUpperCase()}`;
+        frame_highlights += `${p2c(x,y)};color;${hex};opacity;1;square;${p2c(x,y)};persistent;true,`;
       }
     }
+    frame_highlights += "]}";
+    highlights.push(frame_highlights);
 
-    async function processGif() {
-      const file = document.getElementById("gifInput").files[0];
-      if (!file) { alert("Выберите GIF!"); return; }
-
-      const buf = await file.arrayBuffer();
-      const gif = parseGIF(buf);
-      const frames = decompressFrames(gif, true);
-
-      if (frames[0].dims.width !== 8 || frames[0].dims.height !== 8) {
-        alert(`GIF имеет размер ${frames[0].dims.width}x${frames[0].dims.height}, нужен 8x8`);
-        return;
-      }
-
-      const progressBar = document.getElementById("progress");
-      progressBar.value = 0;
-
-      let highlights = [];
-      for (let f = 0; f < frames.length; f++) {
-        let frame = frames[f];
-        let frame_highlights = "{[%c_highlight ";
-        let pixels = frame.patch;
-
-        for (let y = 0; y < 8; y++) {
-          for (let x = 0; x < 8; x++) {
-            let idx = (y*8 + x)*4;
-            let r = pixels[idx], g = pixels[idx+1], b = pixels[idx+2];
-            let hex = `#${r.toString(16).padStart(2,"0").toUpperCase()}${g.toString(16).padStart(2,"0").toUpperCase()}${b.toString(16).padStart(2,"0").toUpperCase()}`;
-            frame_highlights += `${p2c(x,y)};color;${hex};opacity;1;square;${p2c(x,y)};persistent;true,`;
-          }
-        }
-        frame_highlights += "]}";
-        highlights.push(frame_highlights);
-
-        // обновляем прогресс
-        progressBar.value = Math.round((f+1)/frames.length*100);
-      }
-
-      let pgn = '[SetUp "1"]\n[FEN "k7/8/8/8/8/8/8/K7 w - - 0 1"]\n';
-      for (let m = 0; m < frames.length; m++) pgn += `${generateMove(m)} ${highlights[m]} `;
-
-      document.getElementById("output").textContent = pgn;
-
-      // Скачать файл
-      let blob = new Blob([pgn], {type: "text/plain"});
-      let url = URL.createObjectURL(blob);
-      let link = document.getElementById("download");
-      link.href = url;
-      link.download = file.name.replace(/\.gif$/i, ".pgn");
-      link.textContent = "Скачать PGN";
-      link.style.display = "inline";
+    let pgn = '[SetUp "1"]\n[FEN "k7/8/8/8/8/8/8/K7 w - - 0 1"]\n';
+    for (let m = 0; m < highlights.length; m++) {
+      pgn += `${generateMove(m)} ${highlights[m]} `;
     }
 
-    window.processGif = processGif;
-  </script>
+    document.getElementById("output").textContent = pgn;
+
+    // Скачать PGN
+    const blob = new Blob([pgn], {type: "text/plain"});
+    const link = document.getElementById("download");
+    link.href = URL.createObjectURL(blob);
+    link.download = file.name.replace(/\.gif$/i, ".pgn");
+    link.textContent = "Скачать PGN";
+    link.style.display = "inline";
+  }
+}
+</script>
 </body>
 </html>
