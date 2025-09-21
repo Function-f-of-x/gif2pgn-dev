@@ -56,14 +56,12 @@ async function gifToArray(file) {
 
 document.getElementById("convertBtn").onclick = async function() {
   const file = document.getElementById("gifInput").files[0];
-  const output = document.getElementById("output");
-  const downloadBtn = document.getElementById("download");
-
   if (!file) { alert("Выберите GIF!"); return; }
 
-  output.textContent = "";
-  output.classList.remove('show');
+  document.getElementById("output").textContent = "";
+  const downloadBtn = document.getElementById("download");
   downloadBtn.classList.remove('show');
+
   document.getElementById("progressBar").style.width = '0%';
 
   await gifToArray(file);
@@ -92,11 +90,8 @@ document.getElementById("convertBtn").onclick = async function() {
     pgn += `${generateMove(m)} ${highlights[m]} `;
   }
 
-  // показать результат
-  output.textContent = pgn;
-  output.classList.add('show');
+  document.getElementById("output").textContent = pgn;
 
-  // кнопка скачать PGN
   const blob = new Blob([pgn], {type: "text/plain"});
   downloadBtn.href = URL.createObjectURL(blob);
   downloadBtn.download = file.name.replace(/\.gif$/i, ".pgn");
