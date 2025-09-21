@@ -12,13 +12,13 @@ function generateMove(move) {
   }
 }
 
-function hex(img, x, y) {
+function hex(array_images, frame, x, y) {
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
-  canvas.width = img.width;
-  canvas.height = img.height;
+  canvas.width = array_images[frame].width;
+  canvas.height = array_images[frame].height;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(img, 0, 0);
+  ctx.drawImage(array_images[frame], 0, 0);
   const data = ctx.getImageData(x, y, 1, 1).data;
   return `#${data[0].toString(16).padStart(2,'0').toUpperCase()}${data[1].toString(16).padStart(2,'0').toUpperCase()}${data[2].toString(16).padStart(2,'0').toUpperCase()}`;
 }
@@ -45,9 +45,16 @@ async function gifToArray(file) {
     imgData.data.set(pixels);
     ctx.putImageData(imgData, 0, 0);
 
-    array_images.push(canvas); // сохраняем Canvas вместо Image
+    const img = new Image();
+    img.src = canvas.toDataURL();
+    await new Promise(r => img.onload = r);
+    array_images.push(img);
 
+    // обновляем прогресс-бар
     progressBar.style.width = Math.round((f + 1) / numFrames * 100) + '%';
+
+    // небольшая пауза, чтобы браузер успел обновить прогресс
+    await new Promise(r => setTimeout(r, 10));
   }
 }
 
@@ -56,12 +63,12 @@ document.getElementById("convertBtn").onclick = async function() {
   if (!file) { alert("Выберите GIF!"); return; }
 
   const output = document.getElementById("output");
+  const downloadBtn = document.getElementById("download");
+
+  // сброс перед конвертацией
   output.textContent = "";
   output.classList.remove('show');
-
-  const downloadBtn = document.getElementById("download");
   downloadBtn.classList.remove('show');
-
   document.getElementById("progressBar").style.width = '0%';
 
   await gifToArray(file);
@@ -76,7 +83,7 @@ document.getElementById("convertBtn").onclick = async function() {
     let frame_highlights = "{[%c_highlight ";
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < 8; x++) {
-        const color = hex(array_images[f], x, y); // Canvas напрямую
+        const color = hex(array_images, f, x, y);
         const square = p2c(x, y);
         frame_highlights += `${square};color;${color};opacity;1;square;${square};persistent;true,`;
       }
@@ -90,7 +97,9 @@ document.getElementById("convertBtn").onclick = async function() {
     pgn += `${generateMove(m)} ${highlights[m]} `;
   }
 
-  document.getElementById("output").textContent = pgn;
+  // показываем поле с PGN и кнопку Скачать
+  output.textContent = pgn;
+  output.classList.add('show');
 
   const blob = new Blob([pgn], {type: "text/plain"});
   downloadBtn.href = URL.createObjectURL(blob);
