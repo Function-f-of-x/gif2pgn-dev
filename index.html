@@ -10,9 +10,10 @@
 <button onclick="processGIF()">Конвертировать</button>
 <a id="downloadLink" style="display:none;">Скачать PGN</a>
 
-<!-- UMD-бандл gifuct-js -->
-<script src="https://cdn.jsdelivr.net/npm/gifuct-js@1.0.0/dist/gifuct.umd.js"></script>
-<script>
+<!-- Подключаем ES-модуль gifuct-js -->
+<script type="module">
+import { parseGIF, decompressFrames } from 'https://cdn.jsdelivr.net/npm/gifuct-js@1.0.0/dist/gifuct.esm.js';
+
 const files = "abcdefgh";
 
 function p2c(x, y) {
@@ -43,8 +44,8 @@ function hex(array_images, frame, x, y) {
 // Преобразуем GIF в массив кадров
 async function gif_to_array(file) {
     const arrayBuffer = await file.arrayBuffer();
-    const gif = window.parseGIF(arrayBuffer); // parseGIF берём из UMD
-    const frames = window.decompressFrames(gif, true); // decompressFrames берём из UMD
+    const gif = parseGIF(arrayBuffer);
+    const frames = decompressFrames(gif, true);
     if (frames[0].dims.width !== 8 || frames[0].dims.height !== 8) {
         throw new Error(`GIF размером ${frames[0].dims.width}x${frames[0].dims.height}, нужен 8x8`);
     }
