@@ -2,31 +2,28 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<title>GIF → PGN конвертер (массив кадров)</title>
+<title>GIF → PGN (omggif)</title>
 <style>
-  body { font-family: sans-serif; padding: 20px; }
-  #output { white-space: pre-wrap; background: #f0f0f0; padding: 10px; margin-top: 10px; }
+body { font-family: sans-serif; padding: 20px; }
+#output { white-space: pre-wrap; background: #f0f0f0; padding: 10px; margin-top: 10px; }
 </style>
 </head>
 <body>
-<h1>GIF → PGN конвертер (8×8, массив кадров)</h1>
+<h1>GIF → PGN конвертер (8×8, omggif)</h1>
 <input type="file" id="gifInput" accept="image/gif">
 <button id="convertBtn">Конвертировать</button>
 <pre id="output"></pre>
 <a id="download" style="display:none;">Скачать PGN</a>
 <canvas id="canvas" width="8" height="8" style="display:none;"></canvas>
 
-<script src="https://cdn.jsdelivr.net/npm/gifuct-js/dist/gifuct.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/omggif@1.0.10/omggif.min.js"></script>
 <script>
 const files = "abcdefgh";
 let array_images = [];
 
-function p2c(x, y) {
-  return files[x] + (8 - y);
-}
-
+function p2c(x, y) { return files[x] + (8 - y); }
 function generateMove(move) {
-  switch (move % 4) {
+  switch(move % 4) {
     case 0: return `${Math.floor(move/2)+1}. Kb1`;
     case 1: return "Kb8";
     case 2: return `${Math.floor(move/2)+1}. Ka1`;
@@ -34,7 +31,6 @@ function generateMove(move) {
   }
 }
 
-// Получение HEX через canvas из массива изображений
 function hex(array_images, frame, x, y) {
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
@@ -46,20 +42,24 @@ function hex(array_images, frame, x, y) {
   return `#${data[0].toString(16).padStart(2,'0').toUpperCase()}${data[1].toString(16).padStart(2,'0').toUpperCase()}${data[2].toString(16).padStart(2,'0').toUpperCase()}`;
 }
 
-// Разбор GIF в массив изображений
 async function gifToArray(file) {
   const buffer = await file.arrayBuffer();
-  const gif = new window.GifuctJs.Gif(buffer);
-  const frames = gif.decompressFrames(true);
+  const gifReader = new window.GifReader(new Uint8Array(buffer));
+  const w = gifReader.width;
+  const h = gifReader.height;
+  const numFrames = gifReader.numFrames();
   array_images = [];
 
-  for (let f = 0; f < frames.length; f++) {
+  for (let f = 0; f < numFrames; f++) {
+    const pixels = new Uint8ClampedArray(w * h * 4);
+    gifReader.decodeAndBlitFrameRGBA(f, pixels);
+
     const canvas = document.createElement('canvas');
-    canvas.width = frames[f].dims.width;
-    canvas.height = frames[f].dims.height;
+    canvas.width = w;
+    canvas.height = h;
     const ctx = canvas.getContext('2d');
-    const imgData = ctx.createImageData(canvas.width, canvas.height);
-    imgData.data.set(frames[f].patch);
+    const imgData = ctx.createImageData(w, h);
+    imgData.data.set(pixels);
     ctx.putImageData(imgData, 0, 0);
 
     const img = new Image();
