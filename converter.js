@@ -12,13 +12,13 @@ function generateMove(move) {
   }
 }
 
-function hex(array_images, frame, x, y) {
+function hex(img, x, y) {
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
-  canvas.width = array_images[frame].width;
-  canvas.height = array_images[frame].height;
+  canvas.width = img.width;
+  canvas.height = img.height;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(array_images[frame], 0, 0);
+  ctx.drawImage(img, 0, 0);
   const data = ctx.getImageData(x, y, 1, 1).data;
   return `#${data[0].toString(16).padStart(2,'0').toUpperCase()}${data[1].toString(16).padStart(2,'0').toUpperCase()}${data[2].toString(16).padStart(2,'0').toUpperCase()}`;
 }
@@ -45,10 +45,7 @@ async function gifToArray(file) {
     imgData.data.set(pixels);
     ctx.putImageData(imgData, 0, 0);
 
-    const img = new Image();
-    img.src = canvas.toDataURL();
-    await new Promise(r => img.onload = r);
-    array_images.push(img);
+    array_images.push(canvas); // сохраняем Canvas вместо Image
 
     progressBar.style.width = Math.round((f + 1) / numFrames * 100) + '%';
   }
@@ -58,7 +55,10 @@ document.getElementById("convertBtn").onclick = async function() {
   const file = document.getElementById("gifInput").files[0];
   if (!file) { alert("Выберите GIF!"); return; }
 
-  document.getElementById("output").textContent = "";
+  const output = document.getElementById("output");
+  output.textContent = "";
+  output.classList.remove('show');
+
   const downloadBtn = document.getElementById("download");
   downloadBtn.classList.remove('show');
 
@@ -76,7 +76,7 @@ document.getElementById("convertBtn").onclick = async function() {
     let frame_highlights = "{[%c_highlight ";
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < 8; x++) {
-        const color = hex(array_images, f, x, y);
+        const color = hex(array_images[f], x, y); // Canvas напрямую
         const square = p2c(x, y);
         frame_highlights += `${square};color;${color};opacity;1;square;${square};persistent;true,`;
       }
@@ -90,16 +90,12 @@ document.getElementById("convertBtn").onclick = async function() {
     pgn += `${generateMove(m)} ${highlights[m]} `;
   }
 
-  // показываем поле с PGN
-const output = document.getElementById("output");
-output.textContent = pgn;
-output.classList.add('show');
+  output.textContent = pgn;
+  output.classList.add('show');
 
-// показываем кнопку скачать PGN
-const downloadBtn = document.getElementById("download");
-const blob = new Blob([pgn], {type: "text/plain"});
-downloadBtn.href = URL.createObjectURL(blob);
-downloadBtn.download = file.name.replace(/\.gif$/i, ".pgn");
-downloadBtn.textContent = "Скачать PGN";
-downloadBtn.classList.add('show');
+  const blob = new Blob([pgn], {type: "text/plain"});
+  downloadBtn.href = URL.createObjectURL(blob);
+  downloadBtn.download = file.name.replace(/\.gif$/i, ".pgn");
+  downloadBtn.textContent = "Скачать PGN";
+  downloadBtn.classList.add('show');
 };
