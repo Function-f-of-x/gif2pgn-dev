@@ -7,7 +7,7 @@
 /* Общий фон и шрифт */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(to bottom right, #ffecd2, #fcb69f);
+    background: #ffecd2;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -16,6 +16,22 @@ body {
     margin: 0;
     padding: 40px 20px;
     color: #333;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Кругляшки на фоне */
+.bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 126, 95, 0.3);
+    animation: float 15s infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
 }
 
 /* Заголовок */
@@ -23,6 +39,8 @@ h1 {
     text-align: center;
     margin-bottom: 30px;
     font-size: 2em;
+    z-index: 1;
+    position: relative;
 }
 
 /* Кнопки и input */
@@ -30,26 +48,25 @@ input[type="file"], button {
     display: block;
     margin: 10px auto;
     padding: 12px 25px;
-    border-radius: 12px;
+    border-radius: 25px;
     border: none;
     font-size: 1em;
     cursor: pointer;
     transition: all 0.2s ease;
     font-family: inherit;
+    position: relative;
+    z-index: 1;
 }
 
 /* Цвета кнопок */
-button {
-    background-color: #ff7e5f;
+button, input[type="file"] {
+    background: linear-gradient(135deg, #ff7e5f, #feb47b);
     color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
-button:hover {
-    background-color: #feb47b;
-}
-
-input[type="file"] {
-    background-color: white;
+button:hover, input[type="file"]:hover {
+    background: linear-gradient(135deg, #feb47b, #ff7e5f);
 }
 
 /* Прогрессбар */
@@ -60,6 +77,8 @@ input[type="file"] {
     margin-top: 15px;
     border-radius: 10px;
     overflow: hidden;
+    z-index: 1;
+    position: relative;
 }
 
 #progressBar {
@@ -80,6 +99,8 @@ input[type="file"] {
     overflow: auto;
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    z-index: 1;
+    position: relative;
 }
 
 /* Ссылка скачать */
@@ -87,16 +108,19 @@ input[type="file"] {
     display: none;
     margin-top: 15px;
     padding: 12px 25px;
-    background-color: #ff7e5f;
+    background: linear-gradient(135deg, #ff7e5f, #feb47b);
     color: white;
-    border-radius: 12px;
+    border-radius: 25px;
     text-decoration: none;
     font-size: 1em;
     transition: all 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    position: relative;
+    z-index: 1;
 }
 
 #download:hover {
-    background-color: #feb47b;
+    background: linear-gradient(135deg, #feb47b, #ff7e5f);
 }
 </style>
 </head>
@@ -109,6 +133,19 @@ input[type="file"] {
 <pre id="output"></pre>
 <a id="download">Скачать PGN</a>
 <canvas id="canvas" width="8" height="8" style="display:none;"></canvas>
+
+<!-- Генерация кругляшков -->
+<script>
+for(let i=0;i<20;i++){
+    const bubble = document.createElement('div');
+    bubble.className='bubble';
+    bubble.style.width = bubble.style.height = (Math.random()*60+20)+'px';
+    bubble.style.left = Math.random()*100+'vw';
+    bubble.style.animationDuration = (10+Math.random()*10)+'s';
+    bubble.style.background = `rgba(255,126,95,${0.2+Math.random()*0.3})`;
+    document.body.appendChild(bubble);
+}
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/omggif@1.0.10/omggif.min.js"></script>
 <script src="converter.js"></script>
