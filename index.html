@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>GIF to PGN</title>
-    <!-- Подключаем старую версию gifuct-js для браузера -->
-    <script src="https://cdn.jsdelivr.net/npm/gifuct-js@1.0.2/dist/gifuct.min.js"></script>
 </head>
 <body>
 <h1>Конвертер GIF в PGN</h1>
 <input type="file" id="gifInput" accept=".gif">
 <button onclick="processGIF()">Конвертировать</button>
-<br><br>
 <a id="downloadLink" style="display:none;">Скачать PGN</a>
 
+<!-- Подключаем UMD-бандл gifuct-js -->
+<script src="https://unpkg.com/gifuct-js/dist/gifuct.min.js"></script>
 <script>
 const files = "abcdefgh";
 
@@ -41,10 +40,10 @@ function hex(array_images, frame, x, y) {
     return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
 }
 
-// конвертируем GIF в массив кадров
+// Преобразуем GIF в массив кадров
 async function gif_to_array(file) {
     const arrayBuffer = await file.arrayBuffer();
-    const gif = new window.GifuctJs.Gif(arrayBuffer); // <-- ОБЯЗАТЕЛЬНО window.GifuctJs
+    const gif = new GIFuct(arrayBuffer); // Важно: через UMD бандл объект называется GIFuct
     const frames = gif.decompressFrames(true);
     if (frames[0].dims.width !== 8 || frames[0].dims.height !== 8) {
         throw new Error(`GIF размером ${frames[0].dims.width}x${frames[0].dims.height}, нужен 8x8`);
