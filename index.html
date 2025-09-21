@@ -3,11 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <title>GIF → PGN конвертер</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    #progressContainer { margin-top: 10px; width: 100%; }
+  </style>
 </head>
 <body>
   <h1>GIF → PGN конвертер</h1>
   <input type="file" id="gifInput" accept="image/gif">
   <button onclick="processGif()">Конвертировать</button>
+
+  <div id="progressContainer">
+    <progress id="progress" value="0" max="100" style="width: 100%;"></progress>
+  </div>
+
   <pre id="output"></pre>
   <a id="download" style="display:none;">Скачать PGN</a>
 
@@ -41,6 +50,9 @@
         return;
       }
 
+      const progressBar = document.getElementById("progress");
+      progressBar.value = 0;
+
       let highlights = [];
       for (let f = 0; f < frames.length; f++) {
         let frame = frames[f];
@@ -57,6 +69,9 @@
         }
         frame_highlights += "]}";
         highlights.push(frame_highlights);
+
+        // обновляем прогресс
+        progressBar.value = Math.round((f+1)/frames.length*100);
       }
 
       let pgn = '[SetUp "1"]\n[FEN "k7/8/8/8/8/8/8/K7 w - - 0 1"]\n';
