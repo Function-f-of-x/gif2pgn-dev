@@ -1,22 +1,19 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>GIF → PGN конвертер</title>
-  <style>
-    body { font-family: sans-serif; padding: 20px; }
-    #output { white-space: pre-wrap; background: #f0f0f0; padding: 10px; margin-top: 10px; }
-  </style>
+<meta charset="UTF-8">
+<title>GIF → PGN конвертер</title>
 </head>
 <body>
-  <h1>GIF → PGN конвертер (8×8)</h1>
-  <input type="file" id="gifInput" accept="image/gif">
-  <button id="convertBtn">Конвертировать</button>
-  <pre id="output"></pre>
-  <a id="download" style="display:none;">Скачать PGN</a>
-  <canvas id="canvas" width="8" height="8" style="display:none;"></canvas>
+<h1>GIF → PGN конвертер</h1>
+<input type="file" id="gifInput" accept="image/gif">
+<button id="convertBtn">Конвертировать</button>
+<pre id="output"></pre>
+<a id="download" style="display:none;">Скачать PGN</a>
 
-<script>
+<script type="module">
+import { parseGIF, decompressFrames } from 'https://cdn.jsdelivr.net/npm/gifuct-js@2.0.2/dist/gifuct.esm.js';
+
 function p2c(x, y) {
   const files = "abcdefgh";
   return files[x] + (8 - y);
@@ -31,57 +28,53 @@ function generateMove(move) {
   }
 }
 
-document.getElementById("convertBtn").onclick = async function() {
+document.getElementById("convertBtn").onclick = async () => {
   const file = document.getElementById("gifInput").files[0];
   if (!file) { alert("Выберите GIF!"); return; }
 
-  const url = URL.createObjectURL(file);
-  const img = new Image();
-  img.src = url;
+  const buf = await file.arrayBuffer();
+  const gif = parseGIF(buf);
+  const frames = decompressFrames(gif, true);
 
-  img.onload = async () => {
-    if (img.width !== 8 || img.height !== 8) {
-      alert(`GIF имеет размер ${img.width}x${img.height}, нужен 8x8`);
-      return;
-    }
+  if (frames[0].dims.width !== 8 || frames[0].dims.height !== 8) {
+    alert(`GIF имеет размер ${frames[0].dims.width}x${frames[0].dims.height}, нужен 8x8`);
+    return;
+  }
 
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
+  let highlights = [];
+  for (let f = 0; f < frames.length; f++) {
+    const frame = frames[f];
+    const frame_highlights = [];
+    const pixels = frame.patch;
 
-    // Рисуем один кадр GIF
-    ctx.drawImage(img, 0, 0, 8, 8);
-    const imageData = ctx.getImageData(0, 0, 8, 8).data;
-
-    // Для 8×8 GIF делаем один кадр
-    let highlights = [];
-    let frame_highlights = "{[%c_highlight ";
+    let str = "{[%c_highlight ";
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < 8; x++) {
         const idx = (y*8 + x)*4;
-        const r = imageData[idx], g = imageData[idx+1], b = imageData[idx+2];
+        const r = pixels[idx], g = pixels[idx+1], b = pixels[idx+2];
         const hex = `#${r.toString(16).padStart(2,"0").toUpperCase()}${g.toString(16).padStart(2,"0").toUpperCase()}${b.toString(16).padStart(2,"0").toUpperCase()}`;
-        frame_highlights += `${p2c(x,y)};color;${hex};opacity;1;square;${p2c(x,y)};persistent;true,`;
+        str += `${p2c(x,y)};color;${hex};opacity;1;square;${p2c(x,y)};persistent;true,`;
       }
     }
-    frame_highlights += "]}";
-    highlights.push(frame_highlights);
-
-    let pgn = '[SetUp "1"]\n[FEN "k7/8/8/8/8/8/8/K7 w - - 0 1"]\n';
-    for (let m = 0; m < highlights.length; m++) {
-      pgn += `${generateMove(m)} ${highlights[m]} `;
-    }
-
-    document.getElementById("output").textContent = pgn;
-
-    // Скачать PGN
-    const blob = new Blob([pgn], {type: "text/plain"});
-    const link = document.getElementById("download");
-    link.href = URL.createObjectURL(blob);
-    link.download = file.name.replace(/\.gif$/i, ".pgn");
-    link.textContent = "Скачать PGN";
-    link.style.display = "inline";
+    str += "]}";
+    highlights.push(str);
   }
-}
+
+  let pgn = '[SetUp "1"]\n[FEN "k7/8/8/8/8/8/8/K7 w - - 0 1"]\n';
+  for (let m = 0; m < frames.length; m++) {
+    pgn += `${generateMove(m)} ${highlights[m]} `;
+  }
+
+  document.getElementById("output").textContent = pgn;
+
+  const blob = new Blob([pgn], {type: "text/plain"});
+  const url = URL.createObjectURL(blob);
+  const link = document.getElementById("download");
+  link.href = url;
+  link.download = file.name.replace(/\.gif$/i, ".pgn");
+  link.textContent = "Скачать PGN";
+  link.style.display = "inline";
+};
 </script>
 </body>
 </html>
