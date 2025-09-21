@@ -59,7 +59,9 @@ document.getElementById("convertBtn").onclick = async function() {
   if (!file) { alert("Выберите GIF!"); return; }
 
   document.getElementById("output").textContent = "";
-  document.getElementById("download").style.display = "none";
+  const link = document.getElementById("download");
+  link.style.display = "none";
+  link.classList.remove('download-btn');
   document.getElementById("progressBar").style.width = '0%';
 
   await gifToArray(file);
@@ -90,10 +92,12 @@ document.getElementById("convertBtn").onclick = async function() {
 
   document.getElementById("output").textContent = pgn;
 
+  // создаём blob и активируем красивую кнопку скачивания
   const blob = new Blob([pgn], {type: "text/plain"});
-  const link = document.getElementById("download");
   link.href = URL.createObjectURL(blob);
   link.download = file.name.replace(/\.gif$/i, ".pgn");
   link.textContent = "Скачать PGN";
-  link.style.display = "inline";
+  // Сделать ссылку кнопкой и показать её
+  link.classList.add('download-btn');
+  link.style.display = 'inline-block';
 };
