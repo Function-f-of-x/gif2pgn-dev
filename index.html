@@ -11,7 +11,7 @@
 <br><br>
 <a id="downloadLink" style="display:none;">Скачать PGN</a>
 
-<!-- Подключаем gifuct-js -->
+<!-- Подключаем gifuct-js через правильный CDN -->
 <script src="https://cdn.jsdelivr.net/npm/gifuct-js@1.0.2/dist/gifuct.min.js"></script>
 
 <script>
@@ -24,7 +24,7 @@ function p2c(x, y) {
     return file + rank;
 }
 
-// Генерация ходов короля (как в Python версии)
+// Генерация ходов короля
 function generate_move(move) {
     switch(move % 4) {
         case 0: return `${Math.floor(move/2)+1}. Kb1`;
@@ -47,7 +47,8 @@ function hex(array_images, frame, x, y) {
 // Конвертируем GIF в массив кадров
 async function gif_to_array(file) {
     const arrayBuffer = await file.arrayBuffer();
-    const gif = new gifuct.Gif(arrayBuffer);
+    // Внимание: используем GIF, а не gifuct
+    const gif = new GIF(arrayBuffer);
     const frames = gif.decompressFrames(true);
     if (frames[0].dims.width !== 8 || frames[0].dims.height !== 8) {
         throw new Error(`GIF размером ${frames[0].dims.width}x${frames[0].dims.height}, нужен 8x8`);
