@@ -12,7 +12,9 @@
 <a id="download" style="display:none;">Скачать PGN</a>
 
 <script type="module">
-import { parseGIF, decompressFrames } from 'https://cdn.jsdelivr.net/npm/gifuct-js@2.0.2/dist/gifuct.esm.js';
+import { createFFmpeg, fetchFile } from "https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.2/dist/ffmpeg.min.js";
+
+const ffmpeg = createFFmpeg({ log: true });
 
 function p2c(x, y) {
   const files = "abcdefgh";
@@ -32,38 +34,58 @@ document.getElementById("convertBtn").onclick = async () => {
   const file = document.getElementById("gifInput").files[0];
   if (!file) { alert("Выберите GIF!"); return; }
 
-  const buf = await file.arrayBuffer();
-  const gif = parseGIF(buf);
-  const frames = decompressFrames(gif, true);
+  document.getElementById("output").textContent = "Загрузка FFmpeg...";
+  if (!ffmpeg.isLoaded()) await ffmpeg.load();
 
-  if (frames[0].dims.width !== 8 || frames[0].dims.height !== 8) {
-    alert(`GIF имеет размер ${frames[0].dims.width}x${frames[0].dims.height}, нужен 8x8`);
-    return;
-  }
+  const fileName = file.name.replace(/\.gif$/i, ".mp4");
+  ffmpeg.FS('writeFile', file.name, await fetchFile(file));
+  document.getElementById("output").textContent = "Конвертация GIF → MP4...";
+  await ffmpeg.run('-i', file.name, '-movflags', 'faststart', '-pix_fmt', 'yuv420p', fileName);
+  const data = ffmpeg.FS('readFile', fileName);
 
-  let highlights = [];
-  for (let f = 0; f < frames.length; f++) {
-    const frame = frames[f];
-    const frame_highlights = [];
-    const pixels = frame.patch;
+  // Создаём видео из MP4
+  const videoBlob = new Blob([data.buffer], { type: 'video/mp4' });
+  const videoUrl = URL.createObjectURL(videoBlob);
+  const video = document.createElement("video");
+  video.src = videoUrl;
+  video.crossOrigin = "anonymous";
 
-    let str = "{[%c_highlight ";
+  await new Promise(resolve => video.onloadedmetadata = resolve);
+
+  // Настраиваем canvas 8x8
+  const canvas = document.createElement("canvas");
+  canvas.width = 8;
+  canvas.height = 8;
+  const ctx = canvas.getContext("2d");
+
+  const fps = 10; // частота кадров
+  const framesCount = Math.floor(video.duration * fps);
+  const highlights = [];
+
+  document.getElementById("output").textContent = "Генерация кадров PGN...";
+
+  for (let i = 0; i < framesCount; i++) {
+    video.currentTime = i / fps;
+    await new Promise(resolve => video.onseeked = resolve);
+
+    ctx.drawImage(video, 0, 0, 8, 8);
+    const imgData = ctx.getImageData(0, 0, 8, 8).data;
+
+    let frameStr = "{[%c_highlight ";
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < 8; x++) {
         const idx = (y*8 + x)*4;
-        const r = pixels[idx], g = pixels[idx+1], b = pixels[idx+2];
+        const r = imgData[idx], g = imgData[idx+1], b = imgData[idx+2];
         const hex = `#${r.toString(16).padStart(2,"0").toUpperCase()}${g.toString(16).padStart(2,"0").toUpperCase()}${b.toString(16).padStart(2,"0").toUpperCase()}`;
-        str += `${p2c(x,y)};color;${hex};opacity;1;square;${p2c(x,y)};persistent;true,`;
+        frameStr += `${p2c(x,y)};color;${hex};opacity;1;square;${p2c(x,y)};persistent;true,`;
       }
     }
-    str += "]}";
-    highlights.push(str);
+    frameStr += "]}";
+    highlights.push(frameStr);
   }
 
   let pgn = '[SetUp "1"]\n[FEN "k7/8/8/8/8/8/8/K7 w - - 0 1"]\n';
-  for (let m = 0; m < frames.length; m++) {
-    pgn += `${generateMove(m)} ${highlights[m]} `;
-  }
+  for (let m = 0; m < highlights.length; m++) pgn += `${generateMove(m)} ${highlights[m]} `;
 
   document.getElementById("output").textContent = pgn;
 
