@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>GIF to PGN</title>
+<meta charset="UTF-8">
+<title>GIF to PGN</title>
 </head>
 <body>
 <h1>Конвертер GIF в PGN</h1>
 <input type="file" id="gifInput" accept=".gif">
-<button onclick="processGIF()">Конвертировать</button>
+<button id="convertBtn">Конвертировать</button>
 <a id="downloadLink" style="display:none;">Скачать PGN</a>
 
-<!-- Подключаем ES-модуль gifuct-js -->
 <script type="module">
 import { parseGIF, decompressFrames } from 'https://cdn.jsdelivr.net/npm/gifuct-js@1.0.0/dist/gifuct.esm.js';
 
@@ -31,7 +30,6 @@ function generate_move(move) {
     }
 }
 
-// hex для массива кадров
 function hex(array_images, frame, x, y) {
     const idx = (y * 8 + x) * 4;
     const data = array_images[frame].patch;
@@ -41,7 +39,6 @@ function hex(array_images, frame, x, y) {
     return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
 }
 
-// Преобразуем GIF в массив кадров
 async function gif_to_array(file) {
     const arrayBuffer = await file.arrayBuffer();
     const gif = parseGIF(arrayBuffer);
@@ -68,6 +65,7 @@ async function processGIF() {
         return;
     }
 
+    // Генерация PGN
     const highlights = frames.map((frame, i) => {
         let frame_highlights = "{[%c_highlight ";
         for (let y = 0; y < 8; y++) {
@@ -92,6 +90,9 @@ async function processGIF() {
     link.style.display = 'inline';
     link.textContent = "Скачать PGN";
 }
+
+// В ES-модуле используем addEventListener вместо onclick
+document.getElementById('convertBtn').addEventListener('click', processGIF);
 </script>
 </body>
 </html>
