@@ -6,6 +6,7 @@ body {
   overflow-x: hidden;
 }
 
+/* контейнер */
 .container {
   max-width: 700px;
   margin: 60px auto;
@@ -25,7 +26,7 @@ h1 {
   color: #444;
 }
 
-/* Фоновые кругляшки */
+/* фоновые кругляшки */
 .background .circle {
   position: absolute;
   border-radius: 50%;
@@ -33,42 +34,18 @@ h1 {
   opacity: 0.25;
   animation: float 8s infinite ease-in-out;
 }
+.background .circle:nth-child(1) { width: 300px; height: 300px; top: -100px; left: -100px; }
+.background .circle:nth-child(2) { width: 200px; height: 200px; bottom: -80px; right: -80px; animation-duration: 10s; }
+.background .circle:nth-child(3) { width: 150px; height: 150px; top: 50%; left: 80%; transform: translate(-50%, -50%); animation-duration: 12s; }
 
-.background .circle:nth-child(1) {
-  width: 300px;
-  height: 300px;
-  top: -100px;
-  left: -100px;
-}
-.background .circle:nth-child(2) {
-  width: 200px;
-  height: 200px;
-  bottom: -80px;
-  right: -80px;
-  animation-duration: 10s;
-}
-.background .circle:nth-child(3) {
-  width: 150px;
-  height: 150px;
-  top: 50%;
-  left: 80%;
-  transform: translate(-50%, -50%);
-  animation-duration: 12s;
-}
+@keyframes float { 0%{transform:translateY(0px)} 50%{transform:translateY(-20px)} 100%{transform:translateY(0px)} }
 
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-  100% { transform: translateY(0px); }
-}
-
-/* Кастомная кнопка выбора файла */
+/* file upload */
 .file-upload-wrapper {
   position: relative;
   width: 300px;
   margin: 10px auto;
 }
-
 .file-upload-button {
   display: block;
   width: 100%;
@@ -82,12 +59,9 @@ h1 {
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   transition: 0.2s;
 }
+.file-upload-button:hover { background: linear-gradient(135deg, #feb47b, #ff7e5f); }
 
-.file-upload-button:hover {
-  background: linear-gradient(135deg, #feb47b, #ff7e5f);
-}
-
-/* Скрываем стандартный input */
+/* скрытый инпут */
 .file-upload-input {
   opacity: 0;
   position: absolute;
@@ -104,7 +78,7 @@ h1 {
   color: #666;
 }
 
-/* Кнопка Конвертировать */
+/* кнопка конвертировать */
 .action-btn {
   margin-top: 20px;
   padding: 12px 30px;
@@ -117,29 +91,13 @@ h1 {
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   transition: 0.2s;
 }
+.action-btn:hover { background: linear-gradient(135deg, #185a9d, #43cea2); }
 
-.action-btn:hover {
-  background: linear-gradient(135deg, #185a9d, #43cea2);
-}
+/* progress */
+.progress { width: 100%; background: #eee; border-radius: 10px; margin: 20px 0; height: 15px; overflow: hidden; }
+.progress-bar { height: 100%; width: 0%; background: linear-gradient(135deg, #43cea2, #185a9d); transition: width 0.3s; }
 
-/* Прогресс-бар */
-.progress {
-  width: 100%;
-  background: #eee;
-  border-radius: 10px;
-  margin: 20px 0;
-  height: 15px;
-  overflow: hidden;
-}
-
-.progress-bar {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(135deg, #43cea2, #185a9d);
-  transition: width 0.3s;
-}
-
-/* Output */
+/* output */
 #output {
   text-align: left;
   padding: 15px;
@@ -149,27 +107,37 @@ h1 {
   overflow-y: auto;
   font-size: 0.9em;
   margin-top: 20px;
-    }
+}
 
-
+/* ---------- СТИЛЬ ДЛЯ СКАЧИВАЮЩЕЙ КНОПКИ ---------- */
+/* конкретный селектор с высокой специфичностью, чтобы переопределить браузерный стиль */
+a#download.download-btn,
 .download-btn {
-  display: inline-block;
+  display: inline-block !important;
   margin-top: 15px;
   padding: 12px 25px;
   border-radius: 25px;
   background: linear-gradient(135deg, #6a11cb, #2575fc);
-  color: white;
-  text-decoration: none;
+  color: white !important;
+  text-decoration: none !important;
   font-size: 1em;
-  font-weight: bold;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  transition: 0.3s;
+  font-weight: 600;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+  transition: transform 0.12s, box-shadow 0.12s;
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;
+  cursor: pointer;
   text-align: center;
 }
 
+/* hover/active */
+a#download.download-btn:hover,
 .download-btn:hover {
   background: linear-gradient(135deg, #2575fc, #6a11cb);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
 }
 
+/* ещё на всякий случай убираем стандартные стили ссылок */
+a#download.download-btn:visited { color: white !important; }
