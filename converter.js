@@ -90,11 +90,16 @@ document.getElementById("convertBtn").onclick = async function() {
     pgn += `${generateMove(m)} ${highlights[m]} `;
   }
 
-  document.getElementById("output").textContent = pgn;
+  // показываем поле с PGN
+const output = document.getElementById("output");
+output.textContent = pgn;
+output.classList.add('show');
 
-  const blob = new Blob([pgn], {type: "text/plain"});
-  downloadBtn.href = URL.createObjectURL(blob);
-  downloadBtn.download = file.name.replace(/\.gif$/i, ".pgn");
-  downloadBtn.textContent = "Скачать PGN";
-  downloadBtn.classList.add('show');
+// показываем кнопку скачать PGN
+const downloadBtn = document.getElementById("download");
+const blob = new Blob([pgn], {type: "text/plain"});
+downloadBtn.href = URL.createObjectURL(blob);
+downloadBtn.download = file.name.replace(/\.gif$/i, ".pgn");
+downloadBtn.textContent = "Скачать PGN";
+downloadBtn.classList.add('show');
 };
