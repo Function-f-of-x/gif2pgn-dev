@@ -4,25 +4,113 @@
 <meta charset="UTF-8">
 <title>GIF → PGN конвертер</title>
 <style>
-body { font-family: sans-serif; padding: 20px; }
-#output { white-space: pre-wrap; background: #f0f0f0; padding: 10px; margin-top: 10px; max-height: 400px; overflow: auto; }
-#progressContainer { width: 100%; background: #ddd; height: 20px; margin-top: 10px; border-radius: 5px; overflow: hidden; }
-#progressBar { width: 0%; height: 100%; background: orange; transition: width 0.2s; }
-button { margin-top: 10px; padding: 10px 20px; }
+/* Общий фон и шрифт */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom right, #ffecd2, #fcb69f);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    margin: 0;
+    padding: 40px 20px;
+    color: #333;
+}
+
+/* Заголовок */
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2em;
+}
+
+/* Кнопки и input */
+input[type="file"], button {
+    display: block;
+    margin: 10px auto;
+    padding: 12px 25px;
+    border-radius: 12px;
+    border: none;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+/* Цвета кнопок */
+button {
+    background-color: #ff7e5f;
+    color: white;
+}
+
+button:hover {
+    background-color: #feb47b;
+}
+
+input[type="file"] {
+    background-color: white;
+}
+
+/* Прогрессбар */
+#progressContainer {
+    width: 300px;
+    background: #eee;
+    height: 20px;
+    margin-top: 15px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#progressBar {
+    width: 0%;
+    height: 100%;
+    background: #ff7e5f;
+    transition: width 0.2s ease;
+}
+
+/* Поле PGN */
+#output {
+    white-space: pre-wrap;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    margin-top: 20px;
+    max-height: 400px;
+    width: 320px;
+    overflow: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Ссылка скачать */
+#download {
+    display: none;
+    margin-top: 15px;
+    padding: 12px 25px;
+    background-color: #ff7e5f;
+    color: white;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 1em;
+    transition: all 0.2s ease;
+}
+
+#download:hover {
+    background-color: #feb47b;
+}
 </style>
 </head>
 <body>
+
 <h1>GIF → PGN конвертер (8×8)</h1>
 <input type="file" id="gifInput" accept="image/gif">
 <button id="convertBtn">Конвертировать</button>
 <div id="progressContainer"><div id="progressBar"></div></div>
 <pre id="output"></pre>
-<a id="download" style="display:none;">Скачать PGN</a>
+<a id="download">Скачать PGN</a>
 <canvas id="canvas" width="8" height="8" style="display:none;"></canvas>
 
-<!-- Библиотека omggif -->
 <script src="https://cdn.jsdelivr.net/npm/omggif@1.0.10/omggif.min.js"></script>
-<!-- Логика конвертера в отдельном файле -->
 <script src="converter.js"></script>
 </body>
 </html>
