@@ -3,99 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <title>GIF to PGN</title>
+    <script src="https://cdn.jsdelivr.net/npm/gifuct-js@2.1.2/dist/gifuct.min.js"></script>
 </head>
 <body>
-<h1>Конвертер GIF в PGN</h1>
-<input type="file" id="gifInput" accept=".gif">
-<button onclick="processGIF()">Конвертировать</button>
-<br><br>
-<a id="downloadLink" style="display:none;">Скачать PGN</a>
+    <h1>Конвертировать GIF в PGN</h1>
+    <input type="file" id="gifInput" accept=".gif">
+    <button onclick="processGIF()">Конвертировать</button>
+    <br><br>
+    <a id="downloadLink" style="display:none;">Скачать PGN</a>
 
-<!-- Подключаем gifuct-js через CDN -->
-<script src="https://cdn.jsdelivr.net/npm/gifuct-js@1.0.2/dist/gifuct.min.js"></script>
+    <script>
+        const files = "abcdefgh";
 
-<script>
-const files = "abcdefgh";
+        function p2c(x, y) {
+            const file = files[x];
+            const rank = 8 - y;
+            return file + rank;
+        }
 
-// Преобразуем координаты x,y в шахматную нотацию
-function p2c(x, y) {
-    const file = files[x];
-    const rank = 8 - y;
-    return file + rank;
-}
-
-// Генерация ходов короля
-function generate_move(move) {
-    switch(move % 4) {
-        case 0: return `${Math.floor(move/2)+1}. Kb1`;
-        case 1: return "Kb8";
-        case 2: return `${Math.floor(move/2)+1}. Ka1`;
-        case 3: return "Ka8";
-    }
-}
-
-// Функция hex для массива кадров
-function hex(array_images, frame, x, y) {
-    const idx = (y * 8 + x) * 4;
-    const data = array_images[frame].patch;
-    const r = data[idx];
-    const g = data[idx+1];
-    const b = data[idx+2];
-    return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
-}
-
-// Конвертируем GIF в массив кадров
-async function gif_to_array(file) {
-    const arrayBuffer = await file.arrayBuffer();
-    const gif = new window.GifuctJs.Gif(arrayBuffer); // важно: window.GifuctJs.Gif
-    const frames = gif.decompressFrames(true);
-    if (frames[0].dims.width !== 8 || frames[0].dims.height !== 8) {
-        throw new Error(`GIF размером ${frames[0].dims.width}x${frames[0].dims.height}, нужен 8x8`);
-    }
-    return frames;
-}
-
-// Основная функция обработки GIF
-async function processGIF() {
-    const input = document.getElementById('gifInput');
-    if (!input.files.length) {
-        alert("Выберите GIF файл!");
-        return;
-    }
-
-    const file = input.files[0];
-    let frames;
-    try {
-        frames = await gif_to_array(file);
-    } catch(e) {
-        alert(e.message);
-        return;
-    }
-
-    const highlights = frames.map((frame, i) => {
-        let frame_highlights = "{[%c_highlight ";
-        for (let y = 0; y < 8; y++) {
-            for (let x = 0; x < 8; x++) {
-                const square = p2c(x, y);
-                frame_highlights += `${square};color;${hex(frames, i, x, y)};opacity;1;square;${square};persistent;true,`;
+        function generate_move(move) {
+            switch(move % 4) {
+                case 0: return `${Math.floor(move/2)+1}. Kb1`;
+                case 1: return "Kb8";
+                case 2: return `${Math.floor(move/2)+1}. Ka1`;
+                case 3: return "Ka8";
             }
         }
-        frame_highlights += "]}";
-        return frame_highlights;
-    });
 
-    let pgn = `[SetUp "1"]\n[FEN "k7/8/8/8/8/8/8/K7 w - - 0 1"]\n`;
-    for (let i = 0; i < frames.length; i++) {
-        pgn += `${generate_move(i)} ${highlights[i]} `;
-    }
+        function hex(array_images, frame, x, y) {
+            const idx = (y * 8 + x) * 4;
+            const data = array_images[frame].patch;
+            const r = data[idx];
+            const g = data[idx+1];
+            const b = data[idx+2];
+            return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+        }
 
-    const blob = new Blob([pgn], {type: "text/plain;charset=utf-8"});
-    const link = document.getElementById('downloadLink');
-    link.href = URL.createObjectURL(blob);
-    link.download = file.name.replace(/\.[^/.]+$/, "") + ".pgn";
-    link.style.display = 'inline';
-    link.textContent = "Скачать PGN";
-}
-</script>
+        async function gif_to_array(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const gif = new gifuct.Gif(arrayBuffer);
+            const frames = gif.decompressFrames(true);
+            if (frames[0].dims.width !== 8 || frames[0].dims.height !== 8) {
+                throw new Error(`GIF размером ${frames[0].dims.width}x${frames[0].dims.height}, нужен 8x8`);
+            }
+            return frames;
+        }
+
+        async function processGIF() {
+            const input = document.getElementById('gifInput');
+            if (!input.files.length) {
+                alert("Выберите GIF файл!");
+                return;
+            }
+
+            const file = input.files[0];
+            let frames;
+            try {
+                frames = await gif_to_array(file);
+            } catch(e) {
+                alert(e.message);
+                return;
+            }
+
+            const highlights = frames.map((frame, i) => {
+                let frame_highlights = "{[%c_highlight ";
+                for (let y = 0; y < 8; y++) {
+                    for (let x = 0; x < 8; x++) {
+                        const square = p2c(x, y);
+                        frame_highlights += `${square};color;${hex(frames, i, x, y)};opacity;1;square;${square};persistent;true,`;
+                    }
+                }
+                frame_highlights += "]}";
+                return frame_highlights;
+            });
+
+            let pgn = `[SetUp "1"]\n[FEN "k7/8/8/8/8/8/8/K7 w - - 0 1"]\n`;
+            for (let i = 0; i < frames.length; i++) {
+                pgn += `${generate_move(i)} ${highlights[i]} `;
+            }
+
+            const blob = new Blob([pgn], {type: "text/plain;charset=utf-8"});
+            const link = document.getElementById('downloadLink');
+            link.href = URL.createObjectURL(blob);
+            link.download = file.name.replace(/\.[^/.]+$/, "") + ".pgn";
+            link.style.display = 'inline';
+            link.textContent = "Скачать PGN";
+        }
+    </script>
 </body>
 </html>
