@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>GIF → PGN конвертер</title>
 <style>
-/* Общий фон и шрифт */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: #ffecd2;
@@ -34,7 +33,6 @@ body {
     100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
 }
 
-/* Заголовок */
 h1 {
     text-align: center;
     margin-bottom: 30px;
@@ -43,7 +41,6 @@ h1 {
     position: relative;
 }
 
-/* Кнопки и input */
 input[type="file"], button {
     display: block;
     margin: 10px auto;
@@ -58,7 +55,6 @@ input[type="file"], button {
     z-index: 1;
 }
 
-/* Цвета кнопок */
 button, input[type="file"] {
     background: linear-gradient(135deg, #ff7e5f, #feb47b);
     color: white;
@@ -67,6 +63,20 @@ button, input[type="file"] {
 
 button:hover, input[type="file"]:hover {
     background: linear-gradient(135deg, #feb47b, #ff7e5f);
+}
+
+/* Область для названия файла */
+#filename {
+    margin-top: 10px;
+    background: rgba(255,255,255,0.9);
+    padding: 10px 15px;
+    border-radius: 20px;
+    width: 300px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    font-weight: 500;
+    z-index: 1;
+    position: relative;
 }
 
 /* Прогрессбар */
@@ -128,6 +138,7 @@ button:hover, input[type="file"]:hover {
 
 <h1>GIF → PGN конвертер (8×8)</h1>
 <input type="file" id="gifInput" accept="image/gif">
+<div id="filename">Файл не выбран</div>
 <button id="convertBtn">Конвертировать</button>
 <div id="progressContainer"><div id="progressBar"></div></div>
 <pre id="output"></pre>
@@ -145,6 +156,17 @@ for(let i=0;i<20;i++){
     bubble.style.background = `rgba(255,126,95,${0.2+Math.random()*0.3})`;
     document.body.appendChild(bubble);
 }
+
+// Обновление названия файла при выборе
+document.getElementById('gifInput').addEventListener('change', function(){
+    const file = this.files[0];
+    const nameDiv = document.getElementById('filename');
+    if(file){
+        nameDiv.textContent = file.name;
+    } else {
+        nameDiv.textContent = "Файл не выбран";
+    }
+});
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/omggif@1.0.10/omggif.min.js"></script>
