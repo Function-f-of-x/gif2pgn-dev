@@ -41,31 +41,44 @@ h1 {
     position: relative;
 }
 
-input[type="file"], button {
-    display: block;
-    margin: 10px auto;
-    padding: 12px 25px;
-    border-radius: 25px;
-    border: none;
-    font-size: 1em;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: inherit;
+/* Кастомная кнопка выбора файла */
+.file-upload-wrapper {
     position: relative;
+    width: 300px;
+    margin: 10px auto;
     z-index: 1;
 }
 
-button, input[type="file"] {
+.file-upload-button {
+    display: inline-block;
+    padding: 12px 25px;
     background: linear-gradient(135deg, #ff7e5f, #feb47b);
     color: white;
+    border-radius: 25px;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+    font-family: inherit;
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
 }
 
-button:hover, input[type="file"]:hover {
+.file-upload-button:hover {
     background: linear-gradient(135deg, #feb47b, #ff7e5f);
 }
 
-/* Область для названия файла */
+/* Скрываем стандартный input */
+.file-upload-input {
+    opacity: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+/* Область для выбранного файла */
 #filename {
     margin-top: 10px;
     background: rgba(255,255,255,0.9);
@@ -75,8 +88,25 @@ button:hover, input[type="file"]:hover {
     text-align: center;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     font-weight: 500;
-    z-index: 1;
-    position: relative;
+}
+
+/* Кнопка Конвертировать */
+#convertBtn {
+    display: block;
+    margin: 15px auto;
+    padding: 12px 25px;
+    border-radius: 25px;
+    border: none;
+    font-size: 1em;
+    cursor: pointer;
+    background: linear-gradient(135deg, #ff7e5f, #feb47b);
+    color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+}
+
+#convertBtn:hover {
+    background: linear-gradient(135deg, #feb47b, #ff7e5f);
 }
 
 /* Прогрессбар */
@@ -87,8 +117,6 @@ button:hover, input[type="file"]:hover {
     margin-top: 15px;
     border-radius: 10px;
     overflow: hidden;
-    z-index: 1;
-    position: relative;
 }
 
 #progressBar {
@@ -109,8 +137,6 @@ button:hover, input[type="file"]:hover {
     overflow: auto;
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    z-index: 1;
-    position: relative;
 }
 
 /* Ссылка скачать */
@@ -125,8 +151,6 @@ button:hover, input[type="file"]:hover {
     font-size: 1em;
     transition: all 0.2s ease;
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    position: relative;
-    z-index: 1;
 }
 
 #download:hover {
@@ -137,15 +161,19 @@ button:hover, input[type="file"]:hover {
 <body>
 
 <h1>GIF → PGN конвертер (8×8)</h1>
-<input type="file" id="gifInput" accept="image/gif">
+
+<div class="file-upload-wrapper">
+    <button class="file-upload-button">Выберите файл</button>
+    <input type="file" id="gifInput" class="file-upload-input" accept="image/gif">
+</div>
 <div id="filename">Файл не выбран</div>
+
 <button id="convertBtn">Конвертировать</button>
 <div id="progressContainer"><div id="progressBar"></div></div>
 <pre id="output"></pre>
 <a id="download">Скачать PGN</a>
 <canvas id="canvas" width="8" height="8" style="display:none;"></canvas>
 
-<!-- Генерация кругляшков -->
 <script>
 for(let i=0;i<20;i++){
     const bubble = document.createElement('div');
