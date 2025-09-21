@@ -8,18 +8,23 @@
 <h1>Конвертер GIF в PGN</h1>
 <input type="file" id="gifInput" accept=".gif">
 <button onclick="processGIF()">Конвертировать</button>
+<br><br>
 <a id="downloadLink" style="display:none;">Скачать PGN</a>
 
-<script src="https://cdn.jsdelivr.net/npm/gifuct-js/dist/gifuct.min.js"></script>
+<!-- Подключаем gifuct-js -->
+<script src="https://cdn.jsdelivr.net/npm/gifuct-js@1.0.2/dist/gifuct.min.js"></script>
+
 <script>
 const files = "abcdefgh";
 
+// Преобразуем координаты x,y в шахматную нотацию
 function p2c(x, y) {
     const file = files[x];
     const rank = 8 - y;
     return file + rank;
 }
 
+// Генерация ходов короля (как в Python версии)
 function generate_move(move) {
     switch(move % 4) {
         case 0: return `${Math.floor(move/2)+1}. Kb1`;
@@ -29,7 +34,7 @@ function generate_move(move) {
     }
 }
 
-// Новая функция hex для массива кадров
+// Функция hex для массива кадров
 function hex(array_images, frame, x, y) {
     const idx = (y * 8 + x) * 4;
     const data = array_images[frame].patch;
@@ -39,10 +44,10 @@ function hex(array_images, frame, x, y) {
     return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
 }
 
-// Преобразуем GIF в массив кадров
+// Конвертируем GIF в массив кадров
 async function gif_to_array(file) {
     const arrayBuffer = await file.arrayBuffer();
-    const gif = new window.GifuctJs.Gif(arrayBuffer);
+    const gif = new gifuct.Gif(arrayBuffer);
     const frames = gif.decompressFrames(true);
     if (frames[0].dims.width !== 8 || frames[0].dims.height !== 8) {
         throw new Error(`GIF размером ${frames[0].dims.width}x${frames[0].dims.height}, нужен 8x8`);
@@ -50,6 +55,7 @@ async function gif_to_array(file) {
     return frames;
 }
 
+// Основная функция обработки GIF
 async function processGIF() {
     const input = document.getElementById('gifInput');
     if (!input.files.length) {
