@@ -32,12 +32,17 @@
 
     <!-- Результат -->
     <pre id="output"></pre>
-    <a id="download" class="download-btn" style="display:none;">Скачать PGN</a>
+
+    <!-- Ссылка будет превращаться в красивую кнопку -->
+    <a id="download" style="display:none;"></a>
   </div>
 
   <canvas id="canvas" style="display:none;"></canvas>
+
+  <!-- omggif -->
   <script src="https://cdn.jsdelivr.net/npm/omggif@1.0.10/omggif.min.js"></script>
   <script src="converter.js"></script>
+
   <script>
     // Вывод имени файла
     const fileInput = document.getElementById('gifInput');
