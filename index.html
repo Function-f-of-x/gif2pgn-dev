@@ -1,102 +1,95 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>GIF → PGN конвертер</title>
+    <meta charset="UTF-8">
+    <title>GIF to PGN</title>
 </head>
 <body>
-<h1>GIF → PGN конвертер</h1>
-<input type="file" id="gifInput" accept="image/gif">
-<button id="convertBtn">Конвертировать</button>
-<pre id="output"></pre>
-<a id="download" style="display:none;">Скачать PGN</a>
+<h1>Конвертер GIF в PGN</h1>
+<input type="file" id="gifInput" accept=".gif">
+<button onclick="processGIF()">Конвертировать</button>
+<a id="downloadLink" style="display:none;">Скачать PGN</a>
 
-<script type="module">
-import { createFFmpeg, fetchFile } from "https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.2/dist/ffmpeg.min.js";
-
-const ffmpeg = createFFmpeg({ log: true });
+<script src="https://cdn.jsdelivr.net/npm/gifuct-js/dist/gifuct.min.js"></script>
+<script>
+const files = "abcdefgh";
 
 function p2c(x, y) {
-  const files = "abcdefgh";
-  return files[x] + (8 - y);
+    const file = files[x];
+    const rank = 8 - y;
+    return file + rank;
 }
 
-function generateMove(move) {
-  switch (move % 4) {
-    case 0: return `${Math.floor(move/2)+1}. Kb1`;
-    case 1: return "Kb8";
-    case 2: return `${Math.floor(move/2)+1}. Ka1`;
-    case 3: return "Ka8";
-  }
-}
-
-document.getElementById("convertBtn").onclick = async () => {
-  const file = document.getElementById("gifInput").files[0];
-  if (!file) { alert("Выберите GIF!"); return; }
-
-  document.getElementById("output").textContent = "Загрузка FFmpeg...";
-  if (!ffmpeg.isLoaded()) await ffmpeg.load();
-
-  const fileName = file.name.replace(/\.gif$/i, ".mp4");
-  ffmpeg.FS('writeFile', file.name, await fetchFile(file));
-  document.getElementById("output").textContent = "Конвертация GIF → MP4...";
-  await ffmpeg.run('-i', file.name, '-movflags', 'faststart', '-pix_fmt', 'yuv420p', fileName);
-  const data = ffmpeg.FS('readFile', fileName);
-
-  // Создаём видео из MP4
-  const videoBlob = new Blob([data.buffer], { type: 'video/mp4' });
-  const videoUrl = URL.createObjectURL(videoBlob);
-  const video = document.createElement("video");
-  video.src = videoUrl;
-  video.crossOrigin = "anonymous";
-
-  await new Promise(resolve => video.onloadedmetadata = resolve);
-
-  // Настраиваем canvas 8x8
-  const canvas = document.createElement("canvas");
-  canvas.width = 8;
-  canvas.height = 8;
-  const ctx = canvas.getContext("2d");
-
-  const fps = 10; // частота кадров
-  const framesCount = Math.floor(video.duration * fps);
-  const highlights = [];
-
-  document.getElementById("output").textContent = "Генерация кадров PGN...";
-
-  for (let i = 0; i < framesCount; i++) {
-    video.currentTime = i / fps;
-    await new Promise(resolve => video.onseeked = resolve);
-
-    ctx.drawImage(video, 0, 0, 8, 8);
-    const imgData = ctx.getImageData(0, 0, 8, 8).data;
-
-    let frameStr = "{[%c_highlight ";
-    for (let y = 0; y < 8; y++) {
-      for (let x = 0; x < 8; x++) {
-        const idx = (y*8 + x)*4;
-        const r = imgData[idx], g = imgData[idx+1], b = imgData[idx+2];
-        const hex = `#${r.toString(16).padStart(2,"0").toUpperCase()}${g.toString(16).padStart(2,"0").toUpperCase()}${b.toString(16).padStart(2,"0").toUpperCase()}`;
-        frameStr += `${p2c(x,y)};color;${hex};opacity;1;square;${p2c(x,y)};persistent;true,`;
-      }
+function generate_move(move) {
+    switch(move % 4) {
+        case 0: return `${Math.floor(move/2)+1}. Kb1`;
+        case 1: return "Kb8";
+        case 2: return `${Math.floor(move/2)+1}. Ka1`;
+        case 3: return "Ka8";
     }
-    frameStr += "]}";
-    highlights.push(frameStr);
-  }
+}
 
-  let pgn = '[SetUp "1"]\n[FEN "k7/8/8/8/8/8/8/K7 w - - 0 1"]\n';
-  for (let m = 0; m < highlights.length; m++) pgn += `${generateMove(m)} ${highlights[m]} `;
+// Новая функция hex для массива кадров
+function hex(array_images, frame, x, y) {
+    const idx = (y * 8 + x) * 4;
+    const data = array_images[frame].patch;
+    const r = data[idx];
+    const g = data[idx+1];
+    const b = data[idx+2];
+    return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+}
 
-  document.getElementById("output").textContent = pgn;
+// Преобразуем GIF в массив кадров
+async function gif_to_array(file) {
+    const arrayBuffer = await file.arrayBuffer();
+    const gif = new window.GifuctJs.Gif(arrayBuffer);
+    const frames = gif.decompressFrames(true);
+    if (frames[0].dims.width !== 8 || frames[0].dims.height !== 8) {
+        throw new Error(`GIF размером ${frames[0].dims.width}x${frames[0].dims.height}, нужен 8x8`);
+    }
+    return frames;
+}
 
-  const blob = new Blob([pgn], {type: "text/plain"});
-  const url = URL.createObjectURL(blob);
-  const link = document.getElementById("download");
-  link.href = url;
-  link.download = file.name.replace(/\.gif$/i, ".pgn");
-  link.textContent = "Скачать PGN";
-  link.style.display = "inline";
-};
+async function processGIF() {
+    const input = document.getElementById('gifInput');
+    if (!input.files.length) {
+        alert("Выберите GIF файл!");
+        return;
+    }
+
+    const file = input.files[0];
+    let frames;
+    try {
+        frames = await gif_to_array(file);
+    } catch(e) {
+        alert(e.message);
+        return;
+    }
+
+    const highlights = frames.map((frame, i) => {
+        let frame_highlights = "{[%c_highlight ";
+        for (let y = 0; y < 8; y++) {
+            for (let x = 0; x < 8; x++) {
+                const square = p2c(x, y);
+                frame_highlights += `${square};color;${hex(frames, i, x, y)};opacity;1;square;${square};persistent;true,`;
+            }
+        }
+        frame_highlights += "]}";
+        return frame_highlights;
+    });
+
+    let pgn = `[SetUp "1"]\n[FEN "k7/8/8/8/8/8/8/K7 w - - 0 1"]\n`;
+    for (let i = 0; i < frames.length; i++) {
+        pgn += `${generate_move(i)} ${highlights[i]} `;
+    }
+
+    const blob = new Blob([pgn], {type: "text/plain;charset=utf-8"});
+    const link = document.getElementById('downloadLink');
+    link.href = URL.createObjectURL(blob);
+    link.download = file.name.replace(/\.[^/.]+$/, "") + ".pgn";
+    link.style.display = 'inline';
+    link.textContent = "Скачать PGN";
+}
 </script>
 </body>
 </html>
