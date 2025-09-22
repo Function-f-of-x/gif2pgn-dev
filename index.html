@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>GIF → PGN Converter</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark">
+  <div class="background">
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+  </div>
+
+  <div class="container">
+    <h1>GIF → PGN Конвертер</h1>
+
+    <!-- Переключатель темы -->
+    <div class="theme-toggle-wrapper">
+      <label class="theme-switch">
+        <input type="checkbox" id="themeToggle">
+        <span class="slider"></span>
+      </label>
+      <span>Светлая тема</span>
+    </div>
+
+    <!-- Кастомная кнопка выбора файла -->
+    <div class="file-upload-wrapper">
+      <button class="file-upload-button">Выбрать GIF</button>
+      <input type="file" id="gifInput" class="file-upload-input" accept="image/gif">
+    </div>
+    <div id="filename">Файл не выбран</div>
+
+    <!-- Кнопка конвертации -->
+    <button id="convertBtn" class="action-btn">Конвертировать</button>
+
+    <!-- Прогресс-бар -->
+    <div class="progress">
+      <div id="progressBar" class="progress-bar"></div>
+    </div>
+
+    <!-- Результат -->
+    <pre id="output"></pre>
+
+    <!-- Кнопка Скачать PGN -->
+    <a id="download" class="download-btn"></a>
+
+    <!-- Документация -->
+    <div class="documentation">
+      <h2>Инструкция по использованию сайта</h2>
+      <ol>
+        <li>Нажмите на кнопку «Выбрать GIF» и загрузите любую гифку размера 8x8 пикселей.</li>
+        <li>Нажмите на кнопку «Конвертировать» для начала конвертации.</li>
+        <li>После заполнения прогресс-бара появится кнопка «Скачать PGN».</li>
+        <li>Перейдите на <a href="https://www.chess.com/analysis" target="_blank">доску анализа Chess.com</a>.</li>
+        <li>Нажмите на «Загрузить файл» в «Загрузить из FEN/PGN» и загрузите отконвертированный файл.</li>
+        <li>Нажмите на «Добавить одну или несколько партий».</li>
+        <li>Просмотрите вашу анимацию прямо на шахматной доске.</li>
+      </ol>
+    </div>
+  </div>
+
+  <canvas id="canvas" style="display:none;"></canvas>
+  <script src="https://cdn.jsdelivr.net/npm/omggif@1.0.10/omggif.min.js"></script>
+  <script src="converter.js"></script>
+
+  <script>
+    // Вывод имени файла
+    const fileInput = document.getElementById('gifInput');
+    fileInput.addEventListener('change', function(){
+      const file = this.files[0];
+      const nameDiv = document.getElementById('filename');
+      if(file){
+        nameDiv.textContent = file.name;
+      } else {
+        nameDiv.textContent = "Файл не выбран";
+      }
+    });
+
+    // Переключатель темы
+    const toggle = document.getElementById('themeToggle');
+    toggle.addEventListener('change', () => {
+      document.body.classList.toggle('dark');
+      document.body.classList.toggle('light');
+    });
+  </script>
+</body>
+</html>

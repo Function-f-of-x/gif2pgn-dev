@@ -1,0 +1,182 @@
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  overflow-x: hidden;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* --- Темы --- */
+body.dark {
+  background: #121212;
+  color: #e0e0e0;
+}
+body.light {
+  background: #f5f5f5;
+  color: #222;
+}
+
+/* контейнер */
+.container {
+  max-width: 700px;
+  margin: 60px auto;
+  background: #1e1e1e;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  transition: background 0.3s, color 0.3s;
+}
+body.light .container {
+  background: #ffffff;
+  color: #222;
+}
+
+/* заголовок */
+h1 {
+  margin-bottom: 25px;
+  font-size: 2em;
+  font-weight: bold;
+}
+
+/* фоновые круги */
+.background .circle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, #ff7e5f, #feb47b);
+  opacity: 0.2;
+  animation: float 8s infinite ease-in-out;
+}
+.background .circle:nth-child(1) { width: 300px; height: 300px; top: -100px; left: -100px; }
+.background .circle:nth-child(2) { width: 200px; height: 200px; bottom: -80px; right: -80px; animation-duration: 10s; }
+.background .circle:nth-child(3) { width: 150px; height: 150px; top: 50%; left: 80%; transform: translate(-50%, -50%); animation-duration: 12s; }
+@keyframes float { 0%{transform:translateY(0px)} 50%{transform:translateY(-20px)} 100%{transform:translateY(0px)} }
+
+/* file upload */
+.file-upload-wrapper {
+  position: relative;
+  width: 300px;
+  margin: 10px auto;
+}
+.file-upload-button {
+  display: block;
+  width: 100%;
+  padding: 12px 25px;
+  border-radius: 25px;
+  border: none;
+  background: linear-gradient(135deg, #ff7e5f, #feb47b);
+  color: white;
+  font-size: 1em;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  transition: 0.3s;
+}
+.file-upload-button:hover { background: linear-gradient(135deg, #feb47b, #ff7e5f); }
+.file-upload-input { opacity: 0; position: absolute; left: 0; top: 0; width: 100%; height: 100%; cursor: pointer; }
+#filename { margin-top: 8px; font-style: italic; color: #bbb; }
+
+/* кнопка конвертировать */
+.action-btn {
+  margin-top: 20px;
+  padding: 12px 30px;
+  border-radius: 25px;
+  border: none;
+  background: linear-gradient(135deg, #43cea2, #185a9d);
+  color: white;
+  font-size: 1em;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transition: 0.3s;
+}
+.action-btn:hover { background: linear-gradient(135deg, #185a9d, #43cea2); transform: translateY(-2px); }
+
+/* progress */
+.progress { width: 100%; background: #2c2c2c; border-radius: 10px; margin: 20px 0; height: 15px; overflow: hidden; }
+.progress-bar { height: 100%; width: 0%; background: linear-gradient(135deg, #43cea2, #185a9d); transition: width 0.3s; }
+body.light .progress { background: #ddd; }
+body.light .progress-bar { background: linear-gradient(135deg, #43cea2, #185a9d); }
+
+/* output */
+#output {
+  display: none; /* скрываем до конвертации */
+  text-align: left;
+  padding: 15px;
+  background: #2a2a2a;
+  border-radius: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  font-size: 0.9em;
+  margin-top: 20px;
+  color: #e0e0e0;
+}
+#output.show {
+  display: block; /* показываем после конвертации */
+}
+
+body.light #output { background: #f5f5f5; color: #222; }
+
+/* кнопка скачать */
+a#download.download-btn {
+  display: none;
+  margin-top: 15px;
+  padding: 12px 25px;
+  border-radius: 25px;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  color: white !important;
+  text-decoration: none !important;
+  font-size: 1em;
+  font-weight: 600;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  transition: transform 0.2s, opacity 0.3s;
+  cursor: pointer;
+  text-align: center;
+  opacity: 0;
+}
+a#download.download-btn.show {
+  display: inline-block;
+  opacity: 1;
+}
+a#download.download-btn:hover { background: linear-gradient(135deg, #2575fc, #6a11cb); transform: translateY(-3px); }
+
+/* документация */
+.documentation {
+  text-align: left;
+  margin-top: 30px;
+  padding: 20px;
+  background: #1a1a1a;
+  border-radius: 15px;
+  color: #ddd;
+}
+body.light .documentation { background: #f0f0f0; color: #222; }
+.documentation h2 { text-align: center; color: #fff; margin-bottom: 15px; }
+body.light .documentation h2 { color: #222; }
+.documentation ol li { margin-bottom: 10px; line-height: 1.5em; }
+.documentation a { color: #43cea2; text-decoration: underline; }
+.documentation a:hover { color: #2575fc; }
+
+/* переключатель темы */
+.theme-toggle-wrapper { display: flex; align-items: center; justify-content: center; margin-bottom: 20px; gap: 10px; }
+.theme-switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+.theme-switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  border-radius: 34px;
+  transition: 0.4s;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.4s;
+}
+.theme-switch input:checked + .slider { background-color: #2196F3; }
+.theme-switch input:checked + .slider:before { transform: translateX(26px); }
