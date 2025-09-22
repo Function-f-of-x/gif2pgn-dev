@@ -55,7 +55,9 @@ h1 {
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   transition: 0.2s;
 }
-.file-upload-button:hover { background: linear-gradient(135deg, #feb47b, #ff7e5f); }
+.file-upload-button:hover .file-upload-button {
+  background: linear-gradient(135deg, #feb47b, #ff7e5f);
+}
 
 .file-upload-input {
   opacity: 0;
