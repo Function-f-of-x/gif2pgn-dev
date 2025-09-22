@@ -30,7 +30,6 @@ h1 {
   border-radius: 50%;
   background: radial-gradient(circle at center, #ff7e5f, #feb47b);
   opacity: 0.25;
-  animation: float 8s infinite ease-in-out;
 }
 .background .circle:nth-child(1) { width: 300px; height: 300px; top: -100px; left: -100px; }
 .background .circle:nth-child(2) { width: 200px; height: 200px; bottom: -80px; right: -80px; animation-duration: 10s; }
