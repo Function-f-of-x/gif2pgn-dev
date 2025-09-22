@@ -156,27 +156,51 @@ body.light .documentation h2 { color: #222; }
 .documentation a:hover { color: #2575fc; }
 
 /* переключатель темы */
-.theme-toggle-wrapper { display: flex; align-items: center; justify-content: center; margin-bottom: 20px; gap: 10px; }
+.theme-toggle-wrapper {
+  position: fixed;       /* фиксируем относительно окна */
+  top: 20px;             /* отступ сверху */
+  right: 20px;           /* отступ справа */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 100;          /* чтобы был поверх всего */
+}
+
 .theme-switch { position: relative; display: inline-block; width: 50px; height: 24px; }
 .theme-switch input { opacity: 0; width: 0; height: 0; }
+
 .slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #ccc;
+  position: relative;
+  width: 50px;
+  height: 24px;
+  background-color: #ffc107; /* желтый — солнце по умолчанию */
   border-radius: 34px;
   transition: 0.4s;
 }
+
+/* кружок-ползунок */
 .slider:before {
   position: absolute;
-  content: "";
+  content: "☀"; /* солнце по умолчанию */
+  font-size: 16px;
   height: 18px;
   width: 18px;
   left: 3px;
   bottom: 3px;
-  background-color: white;
+  text-align: center;
+  line-height: 18px;
   border-radius: 50%;
+  background-color: #fff;
   transition: 0.4s;
 }
-.theme-switch input:checked + .slider { background-color: #2196F3; }
-.theme-switch input:checked + .slider:before { transform: translateX(26px); }
+
+/* переключение на тёмную тему */
+.theme-switch input:checked + .slider {
+  background-color: #4a4a8d; /* тёмно-синий фон */
+}
+
+.theme-switch input:checked + .slider:before {
+  transform: translateX(26px);
+  content: "🌙"; /* луна */
+}
+
