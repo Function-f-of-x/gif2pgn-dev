@@ -15,37 +15,29 @@
   <div class="container">
     <h1>GIF → PGN Конвертер</h1>
 
-    <!-- Переключатель темы -->
     <div class="theme-toggle-wrapper">
       <label class="theme-switch">
         <input type="checkbox" id="themeToggle">
         <span class="slider"></span>
       </label>
-      <span>Светлая тема</span>
     </div>
 
-    <!-- Кастомная кнопка выбора файла -->
     <div class="file-upload-wrapper">
       <button class="file-upload-button">Выбрать GIF</button>
       <input type="file" id="gifInput" class="file-upload-input" accept="image/gif">
     </div>
     <div id="filename">Файл не выбран</div>
 
-    <!-- Кнопка конвертации -->
     <button id="convertBtn" class="action-btn">Конвертировать</button>
 
-    <!-- Прогресс-бар -->
     <div class="progress">
       <div id="progressBar" class="progress-bar"></div>
     </div>
 
-    <!-- Результат -->
     <pre id="output"></pre>
 
-    <!-- Кнопка Скачать PGN -->
     <a id="download" class="download-btn"></a>
 
-    <!-- Документация -->
     <div class="documentation">
       <h2>Инструкция по использованию сайта</h2>
       <ol>
@@ -65,7 +57,6 @@
   <script src="converter.js"></script>
 
   <script>
-    // Вывод имени файла
     const fileInput = document.getElementById('gifInput');
     fileInput.addEventListener('change', function(){
       const file = this.files[0];
@@ -77,7 +68,6 @@
       }
     });
 
-    // Переключатель темы
     const toggle = document.getElementById('themeToggle');
     toggle.addEventListener('change', () => {
       document.body.classList.toggle('dark');
