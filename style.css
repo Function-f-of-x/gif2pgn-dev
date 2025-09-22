@@ -170,12 +170,7 @@ body.light .documentation h2 { color: #222; }
 }
 
 .slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #f4f4f5;
-  transition: 0.4s;
-  border-radius: 30px;
+  background-color: #303136;
 }
 
 .slider::before {
@@ -185,7 +180,12 @@ body.light .documentation h2 { color: #222; }
 }
 
 .theme-switch input:checked + .slider {
-  background-color: #303136;
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #f4f4f5;
+  transition: 0.4s;
+  border-radius: 30px;
 }
 
 .theme-switch input:checked + .slider::before {
