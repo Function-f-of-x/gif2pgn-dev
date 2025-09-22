@@ -174,9 +174,14 @@ body.light .documentation h2 { color: #222; }
 }
 
 .slider::before {
-  transform: translateX(1.5em);
-  background: #303136;
-  box-shadow: inset -3px -2px 5px -2px #8983f7, inset -10px -5px 0 0 #a3dafb;
+  position: absolute;
+  content: "";
+  height: 1.4em;
+  width: 1.4em;
+  border-radius: 20px;
+  left: 0.3em; bottom: 0.3em;
+  background: linear-gradient(40deg, #ff0080, #ff8c00 70%);
+  transition: 0.4s;
 }
 
 .theme-switch input:checked + .slider {
@@ -189,14 +194,9 @@ body.light .documentation h2 { color: #222; }
 }
 
 .theme-switch input:checked + .slider::before {
-  position: absolute;
-  content: "";
-  height: 1.4em;
-  width: 1.4em;
-  border-radius: 20px;
-  left: 0.3em; bottom: 0.3em;
-  background: linear-gradient(40deg, #ff0080, #ff8c00 70%);
-  transition: 0.4s;
+  transform: translateX(1.5em);
+  background: #303136;
+  box-shadow: inset -3px -2px 5px -2px #8983f7, inset -10px -5px 0 0 #a3dafb;
 }
 
 
