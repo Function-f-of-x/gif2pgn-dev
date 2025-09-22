@@ -192,7 +192,7 @@ body.light .documentation h2 { color: #222; }
 }
 
 .theme-switch input:checked + .slider {
-  background-color: #ffe9b5;
+  background-color: #f7ded7;
 }
 
 .theme-switch input:checked + .slider::before {
