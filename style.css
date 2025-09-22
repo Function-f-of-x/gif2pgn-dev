@@ -168,7 +168,7 @@ body.light .documentation h2 { color: #222; }
   height: 0; 
 }
 
-.slider {
+.slider::before {
   position: absolute;
   cursor: pointer;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -177,7 +177,7 @@ body.light .documentation h2 { color: #222; }
   transition: 0.4s;
 }
 
-.slider::before {
+.slider {
   content: "☀";
   position: absolute;
   left: 4px;
@@ -186,11 +186,11 @@ body.light .documentation h2 { color: #222; }
   transition: 0.4s;
 }
 
-.theme-switch input:checked + .slider {
+.theme-switch input:checked + .slider::before {
   background-color: #34495e;
 }
 
-.theme-switch input:checked + .slider::before {
+.theme-switch input:checked + .slider {
   content: "🌙";
   left: 26px;
 }
