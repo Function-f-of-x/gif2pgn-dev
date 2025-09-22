@@ -156,7 +156,6 @@ body.light .documentation h2 { color: #222; }
 }
 
 .theme-switch {
-  font-size: 
   position: relative;
   display: inline-block;
   width: 3.5em;
@@ -170,33 +169,37 @@ body.light .documentation h2 { color: #222; }
 }
 
 .slider {
-  background-color: #303136;
-}
-
-.slider::before {
-  left: 0.3em; bottom: 0.3em;
-  height: 1.4em;
-  width: 1.4em;
-  background: #303136;
-  box-shadow: inset -3px -2px 5px -2px #8983f7, inset -10px -5px 0 0 #a3dafb;
-}
-
-.theme-switch input:checked + .slider {
   position: absolute;
   cursor: pointer;
   top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #f4f4f5;
+  background-color: #303136; /* тёмный фон по умолчанию */
   transition: 0.4s;
   border-radius: 30px;
 }
 
-.theme-switch input:checked + .slider::before {
-  transform: translateX(1.5em);
+.slider::before {
   position: absolute;
   content: "";
+  height: 1.4em;
+  width: 1.4em;
   border-radius: 20px;
-  background: linear-gradient(40deg, #ff0080, #ff8c00 70%);
+  bottom: 0.3em;
+  left: 0.3em; /* Луна фиксированно слева */
+  background: #303136;
+  box-shadow: inset -3px -2px 5px -2px #8983f7,
+              inset -10px -5px 0 0 #a3dafb; /* свет луны */
   transition: 0.4s;
+}
+
+/* Светлая тема */
+.theme-switch input:checked + .slider {
+  background-color: #f4f4f5; /* фон для дня */
+}
+
+.theme-switch input:checked + .slider::before {
+  transform: translateX(1.5em); /* теперь ☀ справа */
+  background: linear-gradient(40deg, #ff0080, #ff8c00 70%);
+  box-shadow: none;
 }
 
 
