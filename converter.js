@@ -50,7 +50,11 @@ async function gifToArray(file) {
     await new Promise(r => img.onload = r);
     array_images.push(img);
 
+    // обновляем прогресс-бар
     progressBar.style.width = Math.round((f + 1) / numFrames * 100) + '%';
+
+    // небольшая пауза, чтобы браузер успел обновить прогресс
+    await new Promise(r => setTimeout(r, 10));
   }
 }
 
@@ -58,10 +62,13 @@ document.getElementById("convertBtn").onclick = async function() {
   const file = document.getElementById("gifInput").files[0];
   if (!file) { alert("Выберите GIF!"); return; }
 
-  document.getElementById("output").textContent = "";
-  const link = document.getElementById("download");
-  link.style.display = "none";
-  link.classList.remove('download-btn');
+  const output = document.getElementById("output");
+  const downloadBtn = document.getElementById("download");
+
+  // сброс перед конвертацией
+  output.textContent = "";
+  output.classList.remove('show');
+  downloadBtn.classList.remove('show');
   document.getElementById("progressBar").style.width = '0%';
 
   await gifToArray(file);
@@ -90,12 +97,13 @@ document.getElementById("convertBtn").onclick = async function() {
     pgn += `${generateMove(m)} ${highlights[m]} `;
   }
 
-  document.getElementById("output").textContent = pgn;
+  // показываем поле с PGN и кнопку Скачать
+  output.textContent = pgn;
+  output.classList.add('show');
 
   const blob = new Blob([pgn], {type: "text/plain"});
-  link.href = URL.createObjectURL(blob);
-  link.download = file.name.replace(/\.gif$/i, ".pgn");
-  link.textContent = "Скачать PGN";
-  link.classList.add('download-btn');
-  link.style.display = 'inline-block';
+  downloadBtn.href = URL.createObjectURL(blob);
+  downloadBtn.download = file.name.replace(/\.gif$/i, ".pgn");
+  downloadBtn.textContent = "Скачать PGN";
+  downloadBtn.classList.add('show');
 };
