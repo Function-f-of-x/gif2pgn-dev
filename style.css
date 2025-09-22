@@ -172,7 +172,7 @@ body.light .documentation h2 { color: #222; }
   position: absolute;
   cursor: pointer;
   top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #303136; /* тёмный фон по умолчанию */
+  background-color: #303136;
   transition: 0.4s;
   border-radius: 30px;
 }
@@ -184,20 +184,19 @@ body.light .documentation h2 { color: #222; }
   width: 1.4em;
   border-radius: 20px;
   bottom: 0.3em;
-  left: 0.3em; /* Луна фиксированно слева */
+  left: 0.3em;
   background: #303136;
   box-shadow: inset -3px -2px 5px -2px #8983f7,
-              inset -10px -5px 0 0 #a3dafb; /* свет луны */
+              inset -10px -5px 0 0 #a3dafb;
   transition: 0.4s;
 }
 
-/* Светлая тема */
 .theme-switch input:checked + .slider {
-  background-color: #f4f4f5; /* фон для дня */
+  background-color: #e6decb;
 }
 
 .theme-switch input:checked + .slider::before {
-  transform: translateX(1.5em); /* теперь ☀ справа */
+  transform: translateX(1.5em);
   background: linear-gradient(40deg, #ff0080, #ff8c00 70%);
   box-shadow: none;
 }
