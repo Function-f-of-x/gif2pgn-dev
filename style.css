@@ -201,4 +201,23 @@ body.light .documentation h2 { color: #222; }
   box-shadow: none;
 }
 
-
+@media (max-width: 768px) {
+  .container {
+    margin: 20px;
+    padding: 20px;
+  }
+  h1 {
+    font-size: 1.5em;
+  }
+  .file-upload-wrapper {
+    width: 100%;
+  }
+  .action-btn, .file-upload-button, a#download.download-btn {
+    width: 100%;
+    font-size: 1.1em;
+    padding: 14px;
+  }
+  #output {
+    font-size: 0.8em;
+  }
+}
