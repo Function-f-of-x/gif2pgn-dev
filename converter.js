@@ -50,10 +50,7 @@ async function gifToArray(file) {
     await new Promise(r => img.onload = r);
     array_images.push(img);
 
-    // обновляем прогресс-бар
     progressBar.style.width = Math.round((f + 1) / numFrames * 100) + '%';
-
-    // небольшая пауза, чтобы браузер успел обновить прогресс
     await new Promise(r => setTimeout(r, 10));
   }
 }
@@ -65,7 +62,6 @@ document.getElementById("convertBtn").onclick = async function() {
   const output = document.getElementById("output");
   const downloadBtn = document.getElementById("download");
 
-  // сброс перед конвертацией
   output.textContent = "";
   output.classList.remove('show');
   downloadBtn.classList.remove('show');
@@ -97,7 +93,6 @@ document.getElementById("convertBtn").onclick = async function() {
     pgn += `${generateMove(m)} ${highlights[m]} `;
   }
 
-  // показываем поле с PGN и кнопку Скачать
   output.textContent = pgn;
   output.classList.add('show');
 
